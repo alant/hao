@@ -1,0 +1,48 @@
+// Proxies Weibo's public trending endpoint to fix browser CORS restrictions.
+// Uses the Cloudflare Cache API to actually cache at the edge for 5 minutes,
+// preventing repeated upstream requests on every page load.
+const edgeCache = typeof caches !== 'undefined' ? caches.default : null;
+
+export async function onRequest(context) {
+  const cacheKey = new Request(new URL('/api/weibo-hot', context.request.url).toString());
+
+  // Serve from edge cache if available (undefined in local dev / pages.dev)
+  const cached = await edgeCache?.match(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const res = await fetch('https://weibo.com/ajax/side/hotSearch', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        'Referer':    'https://weibo.com/',
+        'Accept':     'application/json, text/plain, */*',
+      },
+    });
+
+    if (!res.ok) {
+      return new Response(JSON.stringify({ error: 'upstream error', status: res.status }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const data     = await res.json();
+    const response = new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type':                'application/json; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control':               'public, max-age=300',
+      },
+    });
+
+    // Store in Cloudflare edge cache — clone because body can only be read once
+    if (edgeCache) context.waitUntil(edgeCache.put(cacheKey, response.clone()));
+
+    return response;
+  } catch (err) {
+    return new Response(JSON.stringify({ error: String(err) }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}

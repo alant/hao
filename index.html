@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>好主页</title>
+  <!-- Inline SVG favicon — no external file needed -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23d32f2f'/%3E%3Ctext x='16' y='25' font-family='Microsoft YaHei,sans-serif' font-size='21' fill='white' text-anchor='middle'%3E好%3C/text%3E%3C/svg%3E">
+  <style>
+    /* ── Theme tokens ─────────────────────────────────── */
+    :root {
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --accent: #d32f2f;
+      --accent-soft: #ffebee;
+      --border: #e0e0e0;
+      --hover: #fafafa;
+      --shadow: 0 2px 8px rgba(0, 0, 0, .08);
+      --search-bg: #ffffff;
+      --tag-hot: #d32f2f;
+      --tag-new: #1976d2;
+      --radius: 10px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not([data-theme="light"]) {
+        --theme-auto: dark;
+      }
+    }
+
+    html[data-theme="dark"],
+    html[data-theme="auto"][style*="dark"] {
+      --bg: #181a1f;
+      --card: #24262d;
+      --text: #e8e8e8;
+      --text-muted: #999999;
+      --accent: #ef5350;
+      --accent-soft: #3b1f1f;
+      --border: #38393f;
+      --hover: #2e3038;
+      --shadow: 0 2px 8px rgba(0, 0, 0, .4);
+      --search-bg: #24262d;
+      --tag-hot: #ef5350;
+      --tag-new: #42a5f5;
+    }
+
+    /* ── Reset & base ─────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 18px;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", "苹方", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .25s, color .25s;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent);
+    }
+
+    /* ── Layout ───────────────────────────────────────── */
+    .page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+    }
+
+    /* ── Top bar ──────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 2px solid var(--accent);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-logo {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .clock-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+
+    #clock-date {
+      font-size: 1rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    #clock-lunar {
+      font-size: .82rem;
+      color: var(--accent);
+      white-space: nowrap;
+      opacity: .85;
+    }
+
+    #clock-time {
+      font-size: 1.4rem;
+      font-weight: 600;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    /* Three-state theme segmented control: Auto · ☀️ · 🌙 */
+    .theme-seg {
+      display: flex;
+      align-items: center;
+      background: var(--border);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .theme-seg-btn {
+      border: none;
+      border-radius: 16px;
+      padding: 5px 11px;
+      cursor: pointer;
+      font-size: .88rem;
+      font-family: inherit;
+      background: transparent;
+      color: var(--text-muted);
+      transition: background .2s, color .2s, box-shadow .2s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .theme-seg-btn.active {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+    }
+
+    .theme-seg-btn:not(.active):hover {
+      color: var(--text);
+    }
+
+    /* ── Search ───────────────────────────────────────── */
+    .search-section {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+
+    .search-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+
+    .search-tab {
+      padding: 6px 20px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .2s;
+    }
+
+    .search-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .search-tab:not(.active):hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+    }
+
+    #search-input {
+      width: 100%;
+      height: 52px;
+      border: 2px solid var(--border);
+      border-radius: 26px;
+      padding: 0 44px 0 22px;
+      font-size: 1.2rem;
+      background: var(--search-bg);
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+      transition: border-color .2s;
+    }
+
+    #search-input:focus {
+      border-color: var(--accent);
+    }
+
+    #search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Clear × button */
+    #search-clear {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: none;
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: .85rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background .15s, color .15s;
+    }
+
+    #search-clear.visible {
+      display: flex;
+    }
+
+    #search-clear:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Suggestions dropdown */
+    .search-suggestions {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .13);
+      overflow: hidden;
+      z-index: 200;
+    }
+
+    html[data-theme="dark"] .search-suggestions {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .45);
+    }
+
+    .search-suggestions.open {
+      display: block;
+    }
+
+    .suggest-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+
+    .suggest-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggest-item:hover,
+    .suggest-item.focused {
+      background: var(--hover);
+    }
+
+    .suggest-item.focused {
+      color: var(--accent);
+    }
+
+    .si-icon {
+      color: var(--text-muted);
+      font-size: .95rem;
+      flex-shrink: 0;
+    }
+
+    .search-btn {
+      height: 52px;
+      padding: 0 28px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 26px;
+      font-size: 1.1rem;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity .2s, transform .1s;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      opacity: .9;
+      transform: scale(1.02);
+    }
+
+    .search-btn:active {
+      transform: scale(.98);
+    }
+
+    /* ── Main grid ────────────────────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Nav card ─────────────────────────────────────── */
+    .nav-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 20px 20px;
+      margin-bottom: 16px;
+    }
+
+    .nav-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-card-title .icon {
+      font-size: 1.2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1.05rem;
+      background: var(--hover);
+      transition: all .18s;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(211, 47, 47, .15);
+    }
+
+    .nav-link .lk-icon {
+      font-size: 1.1rem;
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-link .lk-icon img {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Search tab engine icons */
+    .engine-favicon {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      object-fit: contain;
+      vertical-align: middle;
+      margin-right: 5px;
+      display: inline-block;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────── */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .side-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 18px 18px;
+    }
+
+    .side-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .side-title .icon {
+      font-size: 1.15rem;
+    }
+
+    /* Hot search list */
+    .hot-list {
+      list-style: none;
+    }
+
+    .hot-item {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 8px 4px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .15s;
+      border-radius: 6px;
+    }
+
+    .hot-item:last-child {
+      border-bottom: none;
+    }
+
+    .hot-item:hover {
+      background: var(--hover);
+      padding-left: 8px;
+    }
+
+    .hot-rank {
+      font-size: .9rem;
+      font-weight: 700;
+      min-width: 22px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .hot-item:nth-child(1) .hot-rank {
+      color: #d32f2f;
+      font-size: 1.05rem;
+    }
+
+    .hot-item:nth-child(2) .hot-rank {
+      color: #e64a19;
+    }
+
+    .hot-item:nth-child(3) .hot-rank {
+      color: #f57c00;
+    }
+
+    .hot-word {
+      font-size: 1rem;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .hot-tag {
+      font-size: .72rem;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .hot-tag.new {
+      background: var(--tag-new);
+      color: #fff;
+    }
+
+    .hot-tag.hot {
+      background: var(--tag-hot);
+      color: #fff;
+    }
+
+    .hot-tag.top {
+      background: #ff8f00;
+      color: #fff;
+    }
+
+    #hot-loading,
+    #hot-error {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 16px 0;
+      font-size: .95rem;
+    }
+
+    .hot-refresh {
+      margin-top: 10px;
+      font-size: .9rem;
+      color: var(--text-muted);
+      text-align: right;
+      cursor: pointer;
+    }
+
+    .hot-refresh:hover {
+      color: var(--accent);
+    }
+
+    /* Weather detail */
+    .weather-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .weather-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .weather-big-icon {
+      font-size: 2.8rem;
+    }
+
+    .weather-info-right {}
+
+    .weather-big-temp {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+
+    .weather-city-name {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .weather-desc-text {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .weather-extras {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: .9rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .weather-extra-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    #weather-city-input-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    #weather-city-input {
+      width: 0;
+      /* let flex-grow do the work */
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: .9rem;
+      background: var(--search-bg);
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+    }
+
+    #weather-city-input:focus {
+      border-color: var(--accent);
+    }
+
+    #weather-city-btn {
+      flex-shrink: 0;
+      padding: 6px 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: .88rem;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    #weather-loading {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 12px 0;
+    }
+
+    /* ── 设为首页 button ──────────────────────────────── */
+    .sethome-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border: 1.5px solid var(--accent);
+      border-radius: 20px;
+      background: transparent;
+      color: var(--accent);
+      font-size: .9rem;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .18s, color .18s;
+      flex-shrink: 0;
+    }
+
+    .sethome-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Modal overlay ────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 28px 30px 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .28);
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-subtitle {
+      font-size: .9rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .modal-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .modal-steps li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .step-num {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modal-browser-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .modal-tab {
+      padding: 5px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-muted);
+      font-size: .9rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+    }
+
+    .modal-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .modal-instructions {
+      display: none;
+    }
+
+    .modal-instructions.visible {
+      display: block;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .modal-close:hover {
+      color: var(--accent);
+    }
+
+    .modal-url-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: .95rem;
+      word-break: break-all;
+      margin-top: 4px;
+      color: var(--accent);
+      font-weight: 600;
+      user-select: all;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+
+    .modal-url-box:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    /* Copy toast */
+    #copy-toast {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(30, 30, 30, .88);
+      color: #fff;
+      padding: 9px 20px;
+      border-radius: 24px;
+      font-size: .95rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      z-index: 2000;
+      white-space: nowrap;
+    }
+
+    #copy-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Footer ───────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .85rem;
+      margin-top: 30px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="page-wrap">
+
+    <!-- ── Top bar ─────────────────────────────────────── -->
+    <div class="topbar">
+      <div class="topbar-logo">好主页</div>
+
+      <div class="topbar-center">
+        <div class="clock-block">
+          <span id="clock-date"></span>
+          <span id="clock-lunar"></span>
+        </div>
+        <span id="clock-time"></span>
+      </div>
+
+      <div class="topbar-right">
+        <button class="sethome-btn" onclick="setHomePage()">🏠 设为首页</button>
+        <div class="theme-seg" role="group" aria-label="主题模式">
+          <button class="theme-seg-btn" id="seg-auto" onclick="setTheme('auto')" title="跟随系统">自动</button>
+          <button class="theme-seg-btn" id="seg-light" onclick="setTheme('light')" title="白天模式">☀️</button>
+          <button class="theme-seg-btn" id="seg-dark" onclick="setTheme('dark')" title="夜晚模式">🌙</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Search ──────────────────────────────────────── -->
+    <div class="search-section">
+      <div class="search-tabs">
+        <button class="search-tab active" id="tab-bing" onclick="switchEngine('bing')">
+          <img class="engine-favicon" src="https://cn.bing.com/favicon.ico" alt="必应"
+            onerror="this.style.display='none'">必应搜索
+        </button>
+        <button class="search-tab" id="tab-baidu" onclick="switchEngine('baidu')">
+          <img class="engine-favicon" src="https://www.baidu.com/favicon.ico" alt="百度"
+            onerror="this.style.display='none'">百度搜索
+        </button>
+      </div>
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <input id="search-input" type="text" placeholder="输入搜索内容，按回车或点击搜索…" autocomplete="off">
+          <button id="search-clear" title="清除">✕</button>
+          <div class="search-suggestions" id="search-suggestions"></div>
+        </div>
+        <button class="search-btn" onclick="doSearch()">🔍 搜索</button>
+      </div>
+    </div>
+
+    <!-- ── Main grid ───────────────────────────────────── -->
+    <div class="main-grid">
+
+      <!-- Left: nav cards -->
+      <div class="nav-main">
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">📰</span>新闻资讯</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://news.sina.com.cn" target="_blank"><span class="lk-icon">📡</span>新浪新闻</a>
+            <a class="nav-link" href="https://news.qq.com" target="_blank"><span class="lk-icon">🐧</span>腾讯新闻</a>
+            <a class="nav-link" href="https://news.163.com" target="_blank"><span class="lk-icon">🎵</span>网易新闻</a>
+            <a class="nav-link" href="https://www.people.com.cn" target="_blank"><span class="lk-icon">🏛</span>人民网</a>
+            <a class="nav-link" href="https://www.cctv.com" target="_blank"><span class="lk-icon">📺</span>央视网</a>
+            <a class="nav-link" href="https://www.toutiao.com" target="_blank"><span class="lk-icon">🔥</span>今日头条</a>
+            <a class="nav-link" href="https://www.xinhuanet.com" target="_blank"><span class="lk-icon">🌐</span>新华网</a>
+            <a class="nav-link" href="https://www.chinadaily.com.cn" target="_blank"><span
+                class="lk-icon">🗞</span>中国日报</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">📺</span>视频娱乐</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://www.youku.com" target="_blank"><span class="lk-icon">🎬</span>优酷</a>
+            <a class="nav-link" href="https://www.iqiyi.com" target="_blank"><span class="lk-icon">🍀</span>爱奇艺</a>
+            <a class="nav-link" href="https://v.qq.com" target="_blank"><span class="lk-icon">🐧</span>腾讯视频</a>
+            <a class="nav-link" href="https://www.bilibili.com" target="_blank"><span class="lk-icon">📺</span>哔哩哔哩</a>
+            <a class="nav-link" href="https://www.mgtv.com" target="_blank"><span class="lk-icon">🥭</span>芒果TV</a>
+            <a class="nav-link" href="https://www.yangshipin.cn" target="_blank"><span class="lk-icon">🎙</span>央视频</a>
+            <a class="nav-link" href="https://www.douyin.com" target="_blank"><span class="lk-icon">🎵</span>抖音</a>
+            <a class="nav-link" href="https://www.ximalaya.com" target="_blank"><span class="lk-icon">🎧</span>喜马拉雅</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">🛒</span>网上购物</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://www.taobao.com" target="_blank"><span class="lk-icon">🛍</span>淘宝</a>
+            <a class="nav-link" href="https://www.jd.com" target="_blank"><span class="lk-icon">📦</span>京东</a>
+            <a class="nav-link" href="https://www.pinduoduo.com" target="_blank"><span class="lk-icon">🍎</span>拼多多</a>
+            <a class="nav-link" href="https://www.tmall.com" target="_blank"><span class="lk-icon">🐱</span>天猫</a>
+            <a class="nav-link" href="https://www.suning.com" target="_blank"><span class="lk-icon">💡</span>苏宁</a>
+            <a class="nav-link" href="https://www.dangdang.com" target="_blank"><span class="lk-icon">📚</span>当当网</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">📧</span>常用邮箱</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://mail.qq.com" target="_blank"><span class="lk-icon">🐧</span>QQ邮箱</a>
+            <a class="nav-link" href="https://mail.163.com" target="_blank"><span class="lk-icon">🎵</span>网易邮箱</a>
+            <a class="nav-link" href="https://mail.126.com" target="_blank"><span class="lk-icon">📬</span>126邮箱</a>
+            <a class="nav-link" href="https://mail.sina.com.cn" target="_blank"><span class="lk-icon">📡</span>新浪邮箱</a>
+            <a class="nav-link" href="https://www.188.com" target="_blank"><span class="lk-icon">✉️</span>188邮箱</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">🗺</span>地图出行</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://map.baidu.com" target="_blank"><span class="lk-icon">🗺</span>百度地图</a>
+            <a class="nav-link" href="https://www.amap.com" target="_blank"><span class="lk-icon">📍</span>高德地图</a>
+            <a class="nav-link" href="https://www.12306.cn" target="_blank"><span class="lk-icon">🚄</span>12306购票</a>
+            <a class="nav-link" href="https://www.ctrip.com" target="_blank"><span class="lk-icon">✈️</span>携程旅行</a>
+            <a class="nav-link" href="https://www.fliggy.com" target="_blank"><span class="lk-icon">🐷</span>飞猪旅行</a>
+            <a class="nav-link" href="https://www.mafengwo.cn" target="_blank"><span class="lk-icon">🌏</span>马蜂窝</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">💊</span>健康医疗</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://dxy.com" target="_blank"><span class="lk-icon">💉</span>丁香医生</a>
+            <a class="nav-link" href="https://www.haodf.com" target="_blank"><span class="lk-icon">👨‍⚕️</span>好大夫在线</a>
+            <a class="nav-link" href="https://www.youlai.cn" target="_blank"><span class="lk-icon">🏥</span>有来医生</a>
+            <a class="nav-link" href="http://www.jiankang.gov.cn" target="_blank"><span
+                class="lk-icon">🏛</span>健康中国</a>
+            <a class="nav-link" href="https://www.nhsa.gov.cn" target="_blank"><span class="lk-icon">🪪</span>国家医保局</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">🏦</span>金融银行</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://www.alipay.com" target="_blank"><span class="lk-icon">💙</span>支付宝</a>
+            <a class="nav-link" href="https://www.cmbchina.com" target="_blank"><span class="lk-icon">🏦</span>招商银行</a>
+            <a class="nav-link" href="https://www.icbc.com.cn" target="_blank"><span class="lk-icon">🔴</span>工商银行</a>
+            <a class="nav-link" href="https://www.ccb.com" target="_blank"><span class="lk-icon">🔵</span>建设银行</a>
+            <a class="nav-link" href="https://www.abchina.com" target="_blank"><span class="lk-icon">🟢</span>农业银行</a>
+            <a class="nav-link" href="https://www.boc.cn" target="_blank"><span class="lk-icon">🟡</span>中国银行</a>
+            <a class="nav-link" href="https://www.psboc.cn" target="_blank"><span class="lk-icon">🟩</span>邮储银行</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">🍜</span>生活服务</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://www.meituan.com" target="_blank"><span class="lk-icon">🛵</span>美团</a>
+            <a class="nav-link" href="https://www.ele.me" target="_blank"><span class="lk-icon">💙</span>饿了么</a>
+            <a class="nav-link" href="https://www.dianping.com" target="_blank"><span class="lk-icon">⭐</span>大众点评</a>
+            <a class="nav-link" href="https://www.anjuke.com" target="_blank"><span class="lk-icon">🏠</span>安居客</a>
+            <a class="nav-link" href="https://www.lianjia.com" target="_blank"><span class="lk-icon">🔑</span>链家</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">🏛</span>政务服务</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://www.gjzwfw.gov.cn" target="_blank"><span
+                class="lk-icon">🏛</span>国家政务服务</a>
+            <a class="nav-link" href="https://www.12333.gov.cn" target="_blank"><span
+                class="lk-icon">📞</span>12333社保</a>
+            <a class="nav-link" href="https://www.mca.gov.cn" target="_blank"><span class="lk-icon">🧑‍💼</span>民政部</a>
+            <a class="nav-link" href="https://www.gov.cn" target="_blank"><span class="lk-icon">🇨🇳</span>中国政府网</a>
+            <a class="nav-link" href="https://www.12320.gov.cn" target="_blank"><span
+                class="lk-icon">🩺</span>公共卫生热线</a>
+          </div>
+        </div>
+
+        <div class="nav-card">
+          <div class="nav-card-title"><span class="icon">💬</span>社交通讯</div>
+          <div class="nav-links">
+            <a class="nav-link" href="https://web.wechat.com" target="_blank"><span class="lk-icon">💚</span>微信网页版</a>
+            <a class="nav-link" href="https://weibo.com" target="_blank"><span class="lk-icon">🌊</span>微博</a>
+            <a class="nav-link" href="https://im.qq.com/index" target="_blank"><span class="lk-icon">🐧</span>QQ</a>
+            <a class="nav-link" href="https://www.douban.com" target="_blank"><span class="lk-icon">📗</span>豆瓣</a>
+          </div>
+        </div>
+
+      </div><!-- /nav-main -->
+
+      <!-- Right: sidebar -->
+      <div class="sidebar">
+
+        <!-- Weather detail card -->
+        <div class="side-card" id="weather-card">
+          <div class="side-title"><span class="icon">🌤</span>实时天气</div>
+          <div id="weather-loading">正在获取天气…</div>
+          <div class="weather-detail" id="weather-detail" style="display:none">
+            <div class="weather-main">
+              <div class="weather-big-icon" id="wd-icon"></div>
+              <div class="weather-info-right">
+                <div class="weather-big-temp" id="wd-temp"></div>
+                <div class="weather-city-name" id="wd-city"></div>
+                <div class="weather-desc-text" id="wd-desc"></div>
+              </div>
+            </div>
+            <div class="weather-extras">
+              <div class="weather-extra-item">💧 <span id="wd-humidity"></span></div>
+              <div class="weather-extra-item">🌬 <span id="wd-wind"></span></div>
+              <div class="weather-extra-item">🌡 <span id="wd-feels"></span></div>
+            </div>
+          </div>
+          <div id="weather-city-input-row">
+            <input id="weather-city-input" type="text" placeholder="输入城市名称">
+            <button id="weather-city-btn" onclick="lookupCity()">查询</button>
+          </div>
+        </div>
+
+        <!-- Weibo hot search -->
+        <div class="side-card">
+          <div class="side-title"><span class="icon">🔥</span>微博热搜</div>
+          <div id="hot-loading">加载中…</div>
+          <div id="hot-error" style="display:none">暂时无法加载热搜</div>
+          <ul class="hot-list" id="hot-list" style="display:none"></ul>
+          <div class="hot-refresh" onclick="loadHotSearch()">↻ 刷新</div>
+        </div>
+
+      </div><!-- /sidebar -->
+    </div><!-- /main-grid -->
+
+    <div class="footer">
+      © 好主页 &nbsp;·&nbsp; 清爽导航
+    </div>
+  </div><!-- /page-wrap -->
+
+  <!-- ── 设为首页 modal ────────────────────────────────── -->
+  <div class="modal-overlay" id="sethome-modal" onclick="closeHomeModal(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeHomeModal()" aria-label="关闭">×</button>
+      <div class="modal-title">🏠 设为浏览器首页</div>
+      <div class="modal-subtitle">请选择您使用的浏览器，按照步骤操作：</div>
+
+      <div class="modal-browser-tabs">
+        <button class="modal-tab" id="tab-edge" onclick="showBrowser('edge')">Edge</button>
+        <button class="modal-tab" id="tab-360" onclick="showBrowser('360')">360浏览器</button>
+        <button class="modal-tab" id="tab-chrome" onclick="showBrowser('chrome')">Chrome</button>
+        <button class="modal-tab" id="tab-firefox" onclick="showBrowser('firefox')">Firefox</button>
+      </div>
+
+      <!-- Edge -->
+      <div class="modal-instructions" id="inst-edge">
+        <ol class="modal-steps">
+          <li><span class="step-num">1</span><span>点击右上角的 <strong>「…」</strong> 菜单按钮</span></li>
+          <li><span class="step-num">2</span><span>选择 <strong>「设置」</strong></span></li>
+          <li><span class="step-num">3</span><span>点击左侧 <strong>「开始、主页和新建标签页」</strong></span></li>
+          <li><span class="step-num">4</span><span>在「主页按钮」下，打开开关并选择 <strong>「输入 URL」</strong>，粘贴以下地址：</span></li>
+        </ol>
+        <div class="modal-url-box" id="modal-url-edge"></div>
+      </div>
+
+      <!-- 360 -->
+      <div class="modal-instructions" id="inst-360">
+        <ol class="modal-steps">
+          <li><span class="step-num">1</span><span>点击右上角的 <strong>「☰ 菜单」</strong> 按钮</span></li>
+          <li><span class="step-num">2</span><span>选择 <strong>「选项」→「基本设置」</strong></span></li>
+          <li><span class="step-num">3</span><span>在「启动时打开」选择 <strong>「打开指定页面」</strong></span></li>
+          <li><span class="step-num">4</span><span>点击「添加页面」，粘贴以下地址：</span></li>
+        </ol>
+        <div class="modal-url-box" id="modal-url-360"></div>
+      </div>
+
+      <!-- Chrome -->
+      <div class="modal-instructions" id="inst-chrome">
+        <ol class="modal-steps">
+          <li><span class="step-num">1</span><span>点击右上角的 <strong>「⋮」</strong> 菜单按钮</span></li>
+          <li><span class="step-num">2</span><span>选择 <strong>「设置」</strong></span></li>
+          <li><span class="step-num">3</span><span>找到 <strong>「启动时」</strong>，选择「打开特定网页或一组网页」</span></li>
+          <li><span class="step-num">4</span><span>点击「添加新网页」，粘贴以下地址：</span></li>
+        </ol>
+        <div class="modal-url-box" id="modal-url-chrome"></div>
+      </div>
+
+      <!-- Firefox -->
+      <div class="modal-instructions" id="inst-firefox">
+        <ol class="modal-steps">
+          <li><span class="step-num">1</span><span>点击右上角的 <strong>「☰」</strong> 菜单按钮</span></li>
+          <li><span class="step-num">2</span><span>选择 <strong>「设置」</strong></span></li>
+          <li><span class="step-num">3</span><span>在「启动」部分，将主页设置为 <strong>「自定义网址」</strong></span></li>
+          <li><span class="step-num">4</span><span>粘贴以下地址：</span></li>
+        </ol>
+        <div class="modal-url-box" id="modal-url-firefox"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="copy-toast">✅ 已复制到剪贴板</div>
+
+  <!-- ── Cloudflare Web Analytics ─────────────────────── -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon='{"token": "b8308092f9644a52ba9c829d8687f251"}'></script>
+
+  <script>
+    /* ────────────────────────────────────────────────────
+       THEME  —  OS auto + manual override
+    ──────────────────────────────────────────────────── */
+    // Safe localStorage wrapper — private browsing or strict settings can throw
+    const store = {
+      get(key)       { try { return localStorage.getItem(key);       } catch(e) { return null; } },
+      set(key, val)  { try { localStorage.setItem(key, val);         } catch(e) {} },
+    };
+
+    const THEME_KEY = 'haohome-theme'; // 'auto' | 'light' | 'dark'
+    const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function applyTheme(pref) {
+      const isDark = pref === 'dark' || (pref === 'auto' && darkMQ.matches);
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      ['auto', 'light', 'dark'].forEach(id => {
+        document.getElementById(`seg-${id}`)?.classList.toggle('active', id === pref);
+      });
+    }
+
+    function setTheme(pref) {
+      store.set(THEME_KEY, pref);
+      applyTheme(pref);
+    }
+
+    // Re-apply when OS preference changes while set to Auto
+    darkMQ.addEventListener('change', () => {
+      const saved = store.get(THEME_KEY) || 'auto';
+      if (saved === 'auto') applyTheme('auto');
+    });
+
+    applyTheme(store.get(THEME_KEY) || 'auto');
+
+
+    /* ────────────────────────────────────────────────────
+       CLOCK
+    ──────────────────────────────────────────────────── */
+    const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    // Traditional Chinese lunar day names (初一…三十)
+    const LUNAR_DAYS = [
+      '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+      '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+      '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十',
+    ];
+
+    const lunarFmt = (() => {
+      try {
+        return new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+          month: 'long', day: 'numeric'
+        });
+      } catch (e) { return null; }
+    })();
+
+    function getLunarString(date) {
+      if (!lunarFmt) return '';
+      try {
+        const parts = lunarFmt.formatToParts(date);
+        const get = t => (parts.find(p => p.type === t) || {}).value || '';
+        const month = get('month');
+        const rawDay = get('day');
+        // Chrome sometimes returns an Arabic numeral; map it to the traditional name
+        const dayNum = parseInt(rawDay, 10);
+        const day = (!isNaN(dayNum) && dayNum >= 1 && dayNum <= 30)
+          ? LUNAR_DAYS[dayNum - 1]
+          : rawDay;
+        return `农历${month}${day}`;
+      } catch (e) { return ''; }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const y = now.getFullYear(), mo = now.getMonth() + 1, d = now.getDate();
+      const wd = WEEKDAYS[now.getDay()];
+      document.getElementById('clock-date').textContent =
+        `${y}年${mo}月${d}日 ${wd}`;
+      document.getElementById('clock-time').textContent =
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      // Lunar only needs to update once per minute
+      if (now.getSeconds() === 0 || !document.getElementById('clock-lunar').textContent) {
+        document.getElementById('clock-lunar').textContent = getLunarString(now);
+      }
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+
+    /* ────────────────────────────────────────────────────
+       SEARCH  —  engine switching, clear, suggestions
+    ──────────────────────────────────────────────────── */
+    let currentEngine = 'bing';
+    const ENGINES = {
+      bing: q => `https://cn.bing.com/search?q=${encodeURIComponent(q)}`,
+      baidu: q => `https://www.baidu.com/s?wd=${encodeURIComponent(q)}`,
+    };
+
+    function switchEngine(e) {
+      currentEngine = e;
+      document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${e}`).classList.add('active');
+      searchInput.focus();
+      // Re-fetch suggestions with new engine if there's a query
+      if (searchInput.value.trim()) fetchSuggestions(searchInput.value.trim());
+    }
+
+    function doSearch(query) {
+      const q = (query ?? searchInput.value).trim();
+      if (!q) return;
+      hideSuggestions();
+      window.open(ENGINES[currentEngine](q), '_blank');
+    }
+
+    /* ── Clear button ── */
+    const searchInput = document.getElementById('search-input');
+    const clearBtn = document.getElementById('search-clear');
+    const suggestBox = document.getElementById('search-suggestions');
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearBtn.classList.remove('visible');
+      hideSuggestions();
+      searchInput.focus();
+    });
+
+    /* ── Suggestions ── */
+    let suggestTimer = null;
+    let focusedIdx = -1;
+
+    function hideSuggestions() {
+      suggestBox.classList.remove('open');
+      focusedIdx = -1;
+    }
+
+    function buildSuggestions(items) {
+      suggestBox.innerHTML = '';
+      if (!items.length) { hideSuggestions(); return; }
+      items.forEach(text => {
+        const div = document.createElement('div');
+        div.className = 'suggest-item';
+
+        const icon = document.createElement('span');
+        icon.className = 'si-icon';
+        icon.textContent = '🔍';
+
+        const label = document.createElement('span');
+        label.textContent = text;      // textContent — never parsed as HTML
+
+        div.appendChild(icon);
+        div.appendChild(label);
+        div.addEventListener('mousedown', e => {
+          e.preventDefault();
+          doSearch(text);
+        });
+        suggestBox.appendChild(div);
+      });
+      suggestBox.classList.add('open');
+      focusedIdx = -1;
+    }
+
+    async function fetchSuggestions(q) {
+      if (!q) { hideSuggestions(); return; }
+      try {
+        const res = await fetch(`/api/suggest?q=${encodeURIComponent(q)}&engine=${currentEngine}`);
+        const data = await res.json();
+        if (Array.isArray(data)) buildSuggestions(data);
+      } catch (e) { hideSuggestions(); }
+    }
+
+    searchInput.addEventListener('input', () => {
+      const val = searchInput.value;
+      clearBtn.classList.toggle('visible', val.length > 0);
+      clearTimeout(suggestTimer);
+      if (val.trim()) {
+        suggestTimer = setTimeout(() => fetchSuggestions(val.trim()), 250);
+      } else {
+        hideSuggestions();
+      }
+    });
+
+    searchInput.addEventListener('keydown', e => {
+      const items = [...suggestBox.querySelectorAll('.suggest-item')];
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusedIdx = Math.max(focusedIdx - 1, -1);
+      } else if (e.key === 'Escape') {
+        hideSuggestions(); return;
+      } else if (e.key === 'Enter') {
+        if (focusedIdx >= 0 && items[focusedIdx]) {
+          e.preventDefault();
+          doSearch(items[focusedIdx].querySelector('span:last-child').textContent);
+        } else {
+          doSearch();
+        }
+        return;
+      } else { return; }
+
+      items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+      if (focusedIdx >= 0) {
+        searchInput.value = items[focusedIdx].querySelector('span:last-child').textContent;
+      }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.search-input-wrap')) hideSuggestions();
+    });
+
+
+    /* ────────────────────────────────────────────────────
+       WEATHER  —  Cloudflare geolocation + Open-Meteo
+    ──────────────────────────────────────────────────── */
+    const WMO = {
+      0: ['晴天', '☀️'],
+      1: ['晴间多云', '🌤️'],
+      2: ['多云', '⛅'],
+      3: ['阴天', '☁️'],
+      45: ['雾', '🌫️'],
+      48: ['冻雾', '🌫️'],
+      51: ['毛毛雨', '🌦️'],
+      53: ['小雨', '🌦️'],
+      55: ['中雨', '🌦️'],
+      61: ['小雨', '🌧️'],
+      63: ['中雨', '🌧️'],
+      65: ['大雨', '🌧️'],
+      71: ['小雪', '🌨️'],
+      73: ['中雪', '🌨️'],
+      75: ['大雪', '❄️'],
+      77: ['雪粒', '🌨️'],
+      80: ['阵雨', '🌦️'],
+      81: ['中等阵雨', '🌦️'],
+      82: ['强阵雨', '🌦️'],
+      85: ['阵雪', '🌨️'],
+      86: ['大阵雪', '🌨️'],
+      95: ['雷雨', '⛈️'],
+      96: ['雷阵雨', '⛈️'],
+      99: ['强雷雨', '⛈️'],
+    };
+
+    function wmoInfo(code) {
+      return WMO[code] || ['未知', '🌡️'];
+    }
+
+    function showWeather(data, cityName) {
+      const cur = data.current;
+      const [desc, icon] = wmoInfo(cur.weather_code);
+      const temp = Math.round(cur.temperature_2m);
+      const feels = Math.round(cur.apparent_temperature);
+      const humid = cur.relative_humidity_2m;
+      const wind = Math.round(cur.wind_speed_10m);
+
+      // Sidebar detail
+      document.getElementById('wd-icon').textContent = icon;
+      document.getElementById('wd-temp').textContent = `${temp}°C`;
+      document.getElementById('wd-city').textContent = cityName || '当前位置';
+      document.getElementById('wd-desc').textContent = desc;
+      document.getElementById('wd-humidity').textContent = `湿度 ${humid}%`;
+      document.getElementById('wd-wind').textContent = `风速 ${wind} km/h`;
+      document.getElementById('wd-feels').textContent = `体感 ${feels}°C`;
+
+      document.getElementById('weather-loading').style.display = 'none';
+      document.getElementById('weather-detail').style.display = '';
+    }
+
+    async function fetchWeatherByCoords(lat, lon, cityName) {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+        `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m` +
+        `&timezone=auto`;
+      const res = await fetch(url);
+      const data = await res.json();
+      showWeather(data, cityName);
+      store.set('haohome-weather', JSON.stringify({ lat, lon, cityName }));
+    }
+
+    async function lookupCity() {
+      const city = document.getElementById('weather-city-input').value.trim();
+      if (!city) return;
+      document.getElementById('weather-loading').textContent = '查询中…';
+      document.getElementById('weather-loading').style.display = '';
+      document.getElementById('weather-detail').style.display = 'none';
+      try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.results?.length) throw new Error('未找到城市');
+        const r = data.results[0];
+        await fetchWeatherByCoords(r.latitude, r.longitude, r.name);
+        document.getElementById('weather-city-input').value = '';
+      } catch (e) {
+        document.getElementById('weather-loading').textContent = '未找到该城市，请重试';
+      }
+    }
+
+    async function loadWeather() {
+      // Try saved city first
+      const saved = store.get('haohome-weather');
+      if (saved) {
+        try {
+          const { lat, lon, cityName } = JSON.parse(saved);
+          await fetchWeatherByCoords(lat, lon, cityName);
+          return;
+        } catch (_) { }
+      }
+
+      // Try Cloudflare geolocation (works when deployed to Cloudflare Pages)
+      try {
+        const res = await fetch('/api/location');
+        if (res.ok) {
+          const loc = await res.json();
+          if (loc.latitude && loc.longitude) {
+            await fetchWeatherByCoords(loc.latitude, loc.longitude, loc.city);
+            return;
+          }
+        }
+      } catch (_) { }
+
+      // Fallback: browser geolocation
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async pos => {
+            try {
+              await fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude, '');
+            } catch (_) {
+              document.getElementById('weather-loading').textContent =
+                '请在上方输入城市名查询天气';
+            }
+          },
+          () => {
+            document.getElementById('weather-loading').textContent =
+              '请在上方输入城市名查询天气';
+          },
+          { timeout: 6000 }
+        );
+      } else {
+        document.getElementById('weather-loading').textContent = '请在上方输入城市名查询天气';
+      }
+    }
+
+    loadWeather();
+
+    // Refresh weather every 15 min
+    setInterval(loadWeather, 15 * 60 * 1000);
+
+
+    /* ────────────────────────────────────────────────────
+       WEIBO HOT SEARCH  —  via /api/weibo-hot proxy
+    ──────────────────────────────────────────────────── */
+    async function loadHotSearch() {
+      const listEl = document.getElementById('hot-list');
+      const loadEl = document.getElementById('hot-loading');
+      const errorEl = document.getElementById('hot-error');
+
+      listEl.style.display = 'none';
+      errorEl.style.display = 'none';
+      loadEl.style.display = '';
+      loadEl.textContent = '加载中…';
+
+      try {
+        const res = await fetch('/api/weibo-hot');
+        if (!res.ok) throw new Error('API error');
+        const json = await res.json();
+        const items = json?.data?.realtime;
+        if (!Array.isArray(items) || !items.length) throw new Error('no data');
+
+        listEl.innerHTML = '';
+        items.slice(0, 20).forEach((item, i) => {
+          if (item.word_scheme === undefined && !item.word) return;
+          const word = item.word || '';
+          const li = document.createElement('li');
+          li.className = 'hot-item';
+
+          const rank = document.createElement('span');
+          rank.className = 'hot-rank';
+          rank.textContent = i + 1;
+
+          const wordEl = document.createElement('span');
+          wordEl.className = 'hot-word';
+          wordEl.textContent = word;   // textContent — never parsed as HTML
+
+          li.appendChild(rank);
+          li.appendChild(wordEl);
+
+          // Tag labels are our own strings, not from the API
+          let tagText = '', tagCls = '';
+          if (item.is_new)        { tagText = '新'; tagCls = 'new'; }
+          else if (item.flag === 1)  { tagText = '热'; tagCls = 'hot'; }
+          else if (item.flag === 17) { tagText = '沸'; tagCls = 'top'; }
+          if (tagText) {
+            const tag = document.createElement('span');
+            tag.className = `hot-tag ${tagCls}`;
+            tag.textContent = tagText;
+            li.appendChild(tag);
+          }
+
+          li.onclick = () => window.open(ENGINES[currentEngine](word), '_blank');
+          listEl.appendChild(li);
+        });
+
+        loadEl.style.display = 'none';
+        listEl.style.display = '';
+      } catch (e) {
+        loadEl.style.display = 'none';
+        errorEl.style.display = '';
+      }
+    }
+
+    loadHotSearch();
+    // Refresh every 5 min
+    setInterval(loadHotSearch, 5 * 60 * 1000);
+
+    /* ────────────────────────────────────────────────────
+       City input: press Enter to search
+    ──────────────────────────────────────────────────── */
+    document.getElementById('weather-city-input')
+      .addEventListener('keydown', e => { if (e.key === 'Enter') lookupCity(); });
+
+    /* ────────────────────────────────────────────────────
+       Auto-replace emoji icons with real site favicons.
+       Falls back silently to the emoji if favicon 404s.
+    ──────────────────────────────────────────────────── */
+    document.querySelectorAll('a.nav-link[href]').forEach(link => {
+      try {
+        const host = new URL(link.href).hostname;
+        const iconEl = link.querySelector('.lk-icon');
+        if (!host || !iconEl) return;
+        const img = new Image();
+        img.width = 18; img.height = 18;
+        img.style.cssText = 'width:18px;height:18px;border-radius:3px;object-fit:contain;display:block';
+        img.src = `https://${host}/favicon.ico`;
+        img.onload = () => { iconEl.textContent = ''; iconEl.appendChild(img); };
+        // onerror: do nothing → original emoji stays
+      } catch (e) { }
+    });
+
+    /* ────────────────────────────────────────────────────
+       设为首页
+    ──────────────────────────────────────────────────── */
+    function detectBrowser() {
+      const ua = navigator.userAgent;
+      if (ua.includes('360SE') || ua.includes('360EE')) return '360';
+      if (ua.includes('Edg/')) return 'edge';
+      if (ua.includes('Firefox')) return 'firefox';
+      return 'chrome'; // default fallback
+    }
+
+    function showBrowser(id) {
+      document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.modal-instructions').forEach(el => el.classList.remove('visible'));
+      document.getElementById(`tab-${id}`).classList.add('active');
+      document.getElementById(`inst-${id}`).classList.add('visible');
+    }
+
+    function setHomePage() {
+      const url = location.href.split('?')[0].split('#')[0];
+
+      // Populate URL boxes in all instruction panels
+      document.querySelectorAll('[id^="modal-url-"]').forEach(el => el.textContent = url);
+
+      // Try proprietary APIs first (360 / legacy IE)
+      try {
+        if (document.body.setHomePage) {
+          document.body.style.behavior = 'url(#default#homepage)';
+          document.body.setHomePage(url);
+          return;
+        }
+        if (window.external && window.external.SetHomePage) {
+          window.external.SetHomePage(url);
+          return;
+        }
+        if (window.external && window.external.addHomePage) {
+          window.external.addHomePage(url);
+          return;
+        }
+      } catch (e) { }
+
+      // Fall back to instructions modal
+      const modal = document.getElementById('sethome-modal');
+      modal.classList.add('open');
+      showBrowser(detectBrowser());
+    }
+
+    let toastTimer = null;
+    function showCopyToast() {
+      const toast = document.getElementById('copy-toast');
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    async function copyUrl(el) {
+      const url = el.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch (e) {
+        // Fallback for older browsers
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      showCopyToast();
+    }
+
+    // Wire up all URL boxes in the modal
+    document.querySelectorAll('.modal-url-box').forEach(el => {
+      el.addEventListener('click', () => copyUrl(el));
+    });
+
+    function closeHomeModal(e) {
+      // Close when clicking the overlay background or the × button
+      if (!e || e.target === document.getElementById('sethome-modal') || e.currentTarget.classList.contains('modal-close')) {
+        document.getElementById('sethome-modal').classList.remove('open');
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('sethome-modal').classList.remove('open');
+    });
+
+    /* ────────────────────────────────────────────────────
+       Auto-focus search on page load
+    ──────────────────────────────────────────────────── */
+    document.getElementById('search-input').focus();
+  </script>
+</body>
+
+</html>
