@@ -4,7 +4,7 @@
 const edgeCache = typeof caches !== 'undefined' ? caches.default : null;
 
 export async function onRequest(context) {
-  const cacheKey = new Request('https://weibo.com/ajax/side/hotSearch-cached');
+  const cacheKey = new Request(new URL('/api/weibo-hot', context.request.url).toString());
 
   // Serve from edge cache if available (undefined in local dev / pages.dev)
   const cached = await edgeCache?.match(cacheKey);
