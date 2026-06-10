@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Wrangler local dev
+.wrangler/
+wrangler.toml
+
+# Node (if ever added)
+node_modules/
+package-lock.json
+
+# Local env / secrets
+.env
+.env.local
+
+# Cloudflare Pages build output
+.vercel/
+dist/
