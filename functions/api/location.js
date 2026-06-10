@@ -11,9 +11,8 @@ export async function onRequest(context) {
     timezone:  cf.timezone  ?? null,
   }), {
     headers: {
-      'Content-Type':                'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control':               'no-store',
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
     },
   });
 }
