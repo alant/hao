@@ -1173,30 +1173,35 @@
     /* ────────────────────────────────────────────────────
        THEME  —  OS auto + manual override
     ──────────────────────────────────────────────────── */
+    // Safe localStorage wrapper — private browsing or strict settings can throw
+    const store = {
+      get(key)       { try { return localStorage.getItem(key);       } catch(e) { return null; } },
+      set(key, val)  { try { localStorage.setItem(key, val);         } catch(e) {} },
+    };
+
     const THEME_KEY = 'haohome-theme'; // 'auto' | 'light' | 'dark'
     const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
 
     function applyTheme(pref) {
       const isDark = pref === 'dark' || (pref === 'auto' && darkMQ.matches);
       document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-      // Highlight the active segment
       ['auto', 'light', 'dark'].forEach(id => {
         document.getElementById(`seg-${id}`)?.classList.toggle('active', id === pref);
       });
     }
 
     function setTheme(pref) {
-      localStorage.setItem(THEME_KEY, pref);
+      store.set(THEME_KEY, pref);
       applyTheme(pref);
     }
 
     // Re-apply when OS preference changes while set to Auto
     darkMQ.addEventListener('change', () => {
-      const saved = localStorage.getItem(THEME_KEY) || 'auto';
+      const saved = store.get(THEME_KEY) || 'auto';
       if (saved === 'auto') applyTheme('auto');
     });
 
-    applyTheme(localStorage.getItem(THEME_KEY) || 'auto');
+    applyTheme(store.get(THEME_KEY) || 'auto');
 
 
     /* ────────────────────────────────────────────────────
@@ -1440,7 +1445,7 @@
       const res = await fetch(url);
       const data = await res.json();
       showWeather(data, cityName);
-      localStorage.setItem('haohome-weather', JSON.stringify({ lat, lon, cityName }));
+      store.set('haohome-weather', JSON.stringify({ lat, lon, cityName }));
     }
 
     async function lookupCity() {
@@ -1464,7 +1469,7 @@
 
     async function loadWeather() {
       // Try saved city first
-      const saved = localStorage.getItem('haohome-weather');
+      const saved = store.get('haohome-weather');
       if (saved) {
         try {
           const { lat, lon, cityName } = JSON.parse(saved);
