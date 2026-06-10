@@ -1,12 +1,13 @@
 // Proxies Weibo's public trending endpoint to fix browser CORS restrictions.
 // Uses the Cloudflare Cache API to actually cache at the edge for 5 minutes,
 // preventing repeated upstream requests on every page load.
+const edgeCache = typeof caches !== 'undefined' ? caches.default : null;
+
 export async function onRequest(context) {
-  const cache    = caches.default;
   const cacheKey = new Request('https://weibo.com/ajax/side/hotSearch-cached');
 
-  // Serve from edge cache if available
-  const cached = await cache.match(cacheKey);
+  // Serve from edge cache if available (undefined in local dev / pages.dev)
+  const cached = await edgeCache?.match(cacheKey);
   if (cached) return cached;
 
   try {
@@ -35,7 +36,7 @@ export async function onRequest(context) {
     });
 
     // Store in Cloudflare edge cache — clone because body can only be read once
-    context.waitUntil(cache.put(cacheKey, response.clone()));
+    if (edgeCache) context.waitUntil(edgeCache.put(cacheKey, response.clone()));
 
     return response;
   } catch (err) {
