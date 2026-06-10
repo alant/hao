@@ -1,12 +1,18 @@
 // Proxies search suggestions from Bing or Baidu to fix browser CORS.
+// Uses the Cloudflare Cache API to cache at the edge for 60 seconds.
 export async function onRequest(context) {
   const { searchParams } = new URL(context.request.url);
   const q      = searchParams.get('q')      || '';
   const engine = searchParams.get('engine') || 'bing';
 
-  if (!q.trim()) {
-    return json([]);
-  }
+  if (!q.trim()) return json([]);
+
+  const cache    = caches.default;
+  const cacheKey = new Request(context.request.url);
+
+  // Serve from edge cache if available
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
 
   try {
     let suggestions = [];
@@ -19,7 +25,6 @@ export async function onRequest(context) {
       const data = await res.json();
       suggestions = (data.g || []).map(item => item.q).filter(Boolean);
     } else {
-      // Bing OpenSearch suggestion API
       const res  = await fetch(
         `https://api.bing.com/osjson.aspx?query=${encodeURIComponent(q)}&language=zh-CN`,
         { headers: { 'User-Agent': 'Mozilla/5.0' } }
@@ -28,7 +33,12 @@ export async function onRequest(context) {
       suggestions = data[1] || [];
     }
 
-    return json(suggestions.slice(0, 8));
+    const response = json(suggestions.slice(0, 8));
+
+    // Store in Cloudflare edge cache
+    context.waitUntil(cache.put(cacheKey, response.clone()));
+
+    return response;
   } catch (err) {
     return json([]);
   }
