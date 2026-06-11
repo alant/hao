@@ -1487,9 +1487,16 @@
     /* ── Location time helpers ── */
     function locTimeDate(timezone) {
       const now = new Date();
-      const timeFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false });
-      const dateFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: timezone, month: 'numeric', day: 'numeric', weekday: 'short' });
-      return { time: timeFmt.format(now), date: dateFmt.format(now) };
+      const tz = timezone || 'Asia/Shanghai';
+      try {
+        const timeFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: false });
+        const dateFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: tz, month: 'numeric', day: 'numeric', weekday: 'short' });
+        return { time: timeFmt.format(now), date: dateFmt.format(now) };
+      } catch (e) {
+        const fallbackFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hour12: false });
+        const fallbackDate = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', month: 'numeric', day: 'numeric', weekday: 'short' });
+        return { time: fallbackFmt.format(now), date: fallbackDate.format(now) };
+      }
     }
 
     /* ── Location storage ── */
@@ -1741,6 +1748,7 @@
     function hideCitySuggestions() {
       citySugBox.classList.remove('open');
       cityFocusedIdx = -1;
+      citySugData = [];
     }
 
     async function fetchCitySuggestions(q) {
