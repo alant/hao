@@ -2218,7 +2218,8 @@
 
       // 清明节 is a solar term (sun at 15° ecliptic longitude); standard 21st-century formula
       function getQingming(year) {
-        const day = Math.floor(4.81557 + 0.242194 * (year - 1900)) - Math.floor((year - 1901) / 4);
+        // 21st-century formula (2000–2099); previous 1900-based formula was wrong for 2022/23/26/27
+        const day = Math.floor(4.81 + 0.2422 * (year - 2000)) - Math.floor((year - 2000) / 4);
         return new Date(Date.UTC(year, 3, day));
       }
 
