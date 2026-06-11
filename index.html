@@ -1777,8 +1777,10 @@
 
         if (!zhData.results?.length) { hideCitySuggestions(); return; }
 
-        citySugData = zhData.results.map((r, i) => {
-          const rEn        = enData.results?.[i];
+        const enById = Object.fromEntries((enData.results || []).map(r => [r.id, r]));
+
+        citySugData = zhData.results.map((r) => {
+          const rEn        = enById[r.id];
           const nameZh     = r.name;
           const nameNative = rEn?.name || '';
           const isCn       = hasChinese(nameZh);

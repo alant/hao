@@ -15,16 +15,25 @@ export async function onRequest(context) {
   try {
     const headers = { 'User-Agent': 'haohome-portal/1.0 (family portal)' };
 
-    const [zhRes, enRes] = await Promise.all([
-      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=zh-CN`, { headers }),
-      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,    { headers }),
-    ]);
+    // Single request with namedetails=1 returns all language variants — avoids
+    // doubling Nominatim hits and reduces risk of rate-limiting.
+    const res  = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&namedetails=1&accept-language=zh-CN`,
+      { headers }
+    );
+    const data = await res.json();
 
-    const [zhData, enData] = await Promise.all([zhRes.json(), enRes.json()]);
-
-    const pick = d => d.address?.city || d.address?.town || d.address?.county || d.address?.state || '';
-    const nameZh     = pick(zhData);
-    const nameNative = pick(enData);
+    const pick = (d, lang) => {
+      const addr = d.address || {};
+      const field = addr.city || addr.town || addr.county || addr.state || '';
+      if (lang && d.namedetails) {
+        const tagged = d.namedetails[`name:${lang}`];
+        return tagged || field;
+      }
+      return field;
+    };
+    const nameZh     = pick(data, 'zh');
+    const nameNative = pick(data, 'en');
 
     const response = json({ nameZh, nameNative });
     // Cache for 24 hours — city names don't change
