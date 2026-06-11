@@ -582,6 +582,23 @@
       color: var(--accent);
     }
 
+    /* ── Holiday countdown ───────────────────────────── */
+    .holiday-list { display: flex; flex-direction: column; gap: 7px; }
+    .hol-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 8px;
+      background: var(--hover);
+    }
+    .hol-item.hol-soon  { background: rgba(211,47,47,.07); }
+    .hol-item.hol-today { background: rgba(211,47,47,.13); }
+    .hol-icon { font-size: 1.2rem; flex-shrink: 0; line-height: 1; }
+    .hol-name { flex: 1; font-size: .92rem; font-weight: 600; }
+    .hol-meta { text-align: right; flex-shrink: 0; }
+    .hol-date { display: block; font-size: .72rem; color: var(--text-muted); }
+    .hol-days { display: block; font-size: .82rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .hol-item.hol-today .hol-days,
+    .hol-item.hol-soon  .hol-days { color: #d32f2f; }
+
     /* ── Weather tiles ───────────────────────────────── */
     #weather-tiles { display: flex; flex-direction: column; gap: 10px; }
 
@@ -1115,6 +1132,12 @@
             <button id="weather-city-btn" onclick="addCityByName()">添加</button>
           </div>
           <div id="weather-add-err"></div>
+        </div>
+
+        <!-- Holiday countdown -->
+        <div class="side-card" id="holiday-card">
+          <div class="side-title"><span class="icon">🗓</span>节假日</div>
+          <div class="holiday-list" id="holiday-list"></div>
         </div>
 
         <!-- Weibo hot search -->
@@ -2090,6 +2113,156 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') document.getElementById('sethome-modal').classList.remove('open');
     });
+
+    /* ────────────────────────────────────────────────────
+       Holiday countdown
+    ──────────────────────────────────────────────────── */
+    (function renderHolidays() {
+      // ── 春节: Meeus new moon algorithm (Astronomical Algorithms ch.49) ──────────
+      // The browser's Intl Chinese calendar (ICU) uses a less precise new moon
+      // computation that can be off by 1 day vs the official Chinese calendar.
+      // Meeus is accurate to ~2 minutes and matches the Purple Mountain Observatory.
+      function newMoonJDE(k) {
+        const T  = k / 1236.85;
+        const T2 = T * T, T3 = T2 * T, T4 = T3 * T;
+        const d  = Math.PI / 180;
+        let jde  = 2451550.09765 + 29.530588853 * k
+                   + T2 * (0.0001337 - T * (0.000000150 - T * 0.00000000073));
+        const M  = d * (2.5534  + 29.10535669  * k - T2 * (0.0000218  + T * 0.00000011));
+        const Mp = d * (201.5643 + 385.81693528 * k + T2 * (0.0107438  + T * (0.00001239  - T * 0.000000058)));
+        const F  = d * (160.7108 + 390.67050274 * k - T2 * (0.0016341  + T * (0.00000227  - T * 0.000000011)));
+        const Om = d * (124.7746 - 1.5637558    * k + T2 * (0.0020691  + T * 0.00000215));
+        const E  = 1 - 0.002516 * T - 0.0000074 * T2;
+        jde += -0.40720 * Math.sin(Mp)
+               + 0.17241 * E   * Math.sin(M)
+               + 0.01608       * Math.sin(2 * Mp)
+               + 0.01039       * Math.sin(2 * F)
+               + 0.00739 * E   * Math.sin(Mp - M)
+               - 0.00514 * E   * Math.sin(Mp + M)
+               + 0.00208 * E*E * Math.sin(2 * M)
+               - 0.00111       * Math.sin(Mp - 2*F)
+               - 0.00057       * Math.sin(Mp + 2*F)
+               + 0.00056 * E   * Math.sin(2*Mp + M)
+               - 0.00042       * Math.sin(3 * Mp)
+               + 0.00042 * E   * Math.sin(M + 2*F)
+               + 0.00038 * E   * Math.sin(M - 2*F)
+               - 0.00024 * E   * Math.sin(2*Mp - M)
+               - 0.00017       * Math.sin(Om)
+               - 0.00007       * Math.sin(Mp + 2*M);
+        return jde;
+      }
+
+      function getChineseNewYear(year) {
+        // Search lunations near Jan–Feb of the target year for the new moon
+        // that falls between Jan 21 and Feb 20 in CST (UTC+8) — that is 春节.
+        const k0 = Math.round((year - 2000) * 12.3685) - 1;
+        for (let k = k0; k <= k0 + 3; k++) {
+          const jde  = newMoonJDE(k);
+          const utcMs = (jde - 2451545.0) * 86400000 + Date.UTC(2000, 0, 1, 12, 0, 0);
+          const cst  = new Date(utcMs + 8 * 3600000);        // shift to CST
+          const m = cst.getUTCMonth() + 1, d2 = cst.getUTCDate();
+          if ((m === 1 && d2 >= 21) || (m === 2 && d2 <= 20))
+            return new Date(Date.UTC(cst.getUTCFullYear(), cst.getUTCMonth(), cst.getUTCDate()));
+        }
+        return null;
+      }
+
+      // ── 端午 / 中秋: Intl Chinese calendar lookup, pinned to Shanghai time ──
+      // These fall mid-month so they're not sensitive to the new-moon boundary.
+      const fmtChinese = new Intl.DateTimeFormat('en-u-ca-chinese', {
+        month: 'numeric', day: 'numeric', timeZone: 'Asia/Shanghai',
+      });
+
+      function findLunarDate(year, lunarMonth, lunarDay, gregStart, gregEnd) {
+        const lastDay = new Date(Date.UTC(year, gregEnd, 0)).getUTCDate();
+        let ts  = Date.UTC(year, gregStart - 1, 1, 12, 0, 0);
+        const end = Date.UTC(year, gregEnd - 1, lastDay, 12, 0, 0);
+        while (ts <= end) {
+          const parts = fmtChinese.formatToParts(new Date(ts));
+          const lm = +parts.find(p => p.type === 'month').value;
+          const ld = +parts.find(p => p.type === 'day').value;
+          if (lm === lunarMonth && ld === lunarDay) {
+            const hit = new Date(ts);
+            return new Date(Date.UTC(hit.getUTCFullYear(), hit.getUTCMonth(), hit.getUTCDate()));
+          }
+          ts += 86400000;
+        }
+        return null;
+      }
+
+      // 清明节 is a solar term (sun at 15° ecliptic longitude); standard 21st-century formula
+      function getQingming(year) {
+        const day = Math.floor(4.81557 + 0.242194 * (year - 1900)) - Math.floor((year - 1901) / 4);
+        return new Date(Date.UTC(year, 3, day));
+      }
+
+      function utcDay(year, month0, day) { return new Date(Date.UTC(year, month0, day)); }
+
+      function getHolidaysForYear(year) {
+        const chunJie  = getChineseNewYear(year);            // Meeus — matches official CN calendar
+        const duanWu   = findLunarDate(year, 5,  5,  5,  7);  // 五月初五: May–Jul
+        const zhongQiu = findLunarDate(year, 8,  15, 8,  10); // 八月十五: Aug–Oct
+        const list = [
+          { name: '元旦',   icon: '🎆', date: utcDay(year, 0, 1) },
+          { name: '清明节', icon: '🌿', date: getQingming(year)   },
+          { name: '劳动节', icon: '🛠️', date: utcDay(year, 4, 1) },
+          { name: '国庆节', icon: '🇨🇳', date: utcDay(year, 9, 1)},
+        ];
+        if (chunJie) {
+          list.push({ name: '春节',   icon: '🧧', date: chunJie });
+          list.push({ name: '元宵节', icon: '🏮', date: new Date(chunJie.getTime() + 14 * 86400000) });
+        }
+        if (duanWu)   list.push({ name: '端午节', icon: '🐉', date: duanWu   });
+        if (zhongQiu) list.push({ name: '中秋节', icon: '🌕', date: zhongQiu });
+        return list;
+      }
+
+      // "today" in UTC so it aligns with holiday dates stored as midnight UTC
+      const _now  = new Date();
+      const today = new Date(Date.UTC(_now.getUTCFullYear(), _now.getUTCMonth(), _now.getUTCDate()));
+      const y0    = today.getUTCFullYear();
+      const all   = [...getHolidaysForYear(y0), ...getHolidaysForYear(y0 + 1)];
+
+      const upcoming = all
+        .filter(h => h.date >= today)
+        .sort((a, b) => a.date - b.date)
+        .slice(0, 3);
+
+      const listEl = document.getElementById('holiday-list');
+      upcoming.forEach(h => {
+        const diff    = Math.round((h.date - today) / 86400000);
+        const dateStr = `${h.date.getUTCMonth() + 1}月${h.date.getUTCDate()}日`;
+
+        const item = document.createElement('div');
+        item.className = 'hol-item' + (diff === 0 ? ' hol-today' : diff <= 7 ? ' hol-soon' : '');
+
+        const icon = document.createElement('span');
+        icon.className = 'hol-icon';
+        icon.textContent = h.icon;
+
+        const name = document.createElement('span');
+        name.className = 'hol-name';
+        name.textContent = h.name;
+
+        const meta = document.createElement('div');
+        meta.className = 'hol-meta';
+
+        const dateEl = document.createElement('span');
+        dateEl.className = 'hol-date';
+        dateEl.textContent = dateStr;
+
+        const daysEl = document.createElement('span');
+        daysEl.className = 'hol-days';
+        daysEl.textContent = diff === 0 ? '🎉 今天！' : diff === 1 ? '明天！' : `还有 ${diff} 天`;
+
+        meta.appendChild(dateEl);
+        meta.appendChild(daysEl);
+        item.appendChild(icon);
+        item.appendChild(name);
+        item.appendChild(meta);
+        listEl.appendChild(item);
+      });
+    })();
 
     /* ────────────────────────────────────────────────────
        Auto-focus search on page load
