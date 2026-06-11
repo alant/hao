@@ -1951,6 +1951,8 @@
     }
 
     function showAddPrompt() {
+      // If the user added cities manually while geolocation was in flight, don't wipe them.
+      if (locations.length) return;
       const wrap = document.getElementById('weather-tiles');
       wrap.innerHTML = '';
       const p = document.createElement('div');
