@@ -31,7 +31,13 @@ export async function onRequest(context) {
     if (edgeCache) context.waitUntil(edgeCache.put(cacheKey, response.clone()));
     return response;
   } catch (err) {
-    return json({ nameZh: '', nameNative: '' });
+    return new Response(JSON.stringify({ nameZh: '', nameNative: '' }), {
+      status: 502,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-store',
+      },
+    });
   }
 }
 
