@@ -582,100 +582,138 @@
       color: var(--accent);
     }
 
-    /* Weather detail */
-    .weather-detail {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    /* ── Weather tiles ───────────────────────────────── */
+    #weather-tiles { display: flex; flex-direction: column; gap: 10px; }
 
-    .weather-main {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .weather-big-icon {
-      font-size: 2.8rem;
-    }
-
-    .weather-info-right {}
-
-    .weather-big-temp {
-      font-size: 2.2rem;
-      font-weight: 700;
-    }
-
-    .weather-city-name {
-      font-size: 1rem;
-      color: var(--text-muted);
-    }
-
-    .weather-desc-text {
-      font-size: 1rem;
-      color: var(--text-muted);
-    }
-
-    .weather-extras {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      font-size: .9rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .weather-extra-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    #weather-city-input-row {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 6px;
-      margin-top: 10px;
-      align-items: center;
-    }
-
-    #weather-city-input {
-      width: 0;
-      /* let flex-grow do the work */
-      flex: 1 1 0;
-      min-width: 0;
-      padding: 6px 8px;
+    .weather-tile {
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: .9rem;
-      background: var(--search-bg);
-      color: var(--text);
-      font-family: inherit;
-      outline: none;
+      border-radius: 8px;
+      padding: 11px 12px 9px;
     }
 
-    #weather-city-input:focus {
-      border-color: var(--accent);
+    /* tile header: name + controls */
+    .wt-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
     }
-
-    #weather-city-btn {
-      flex-shrink: 0;
-      padding: 6px 10px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: .88rem;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
+    .wt-name {
+      font-weight: 700;
+      font-size: .98rem;
     }
-
-    #weather-loading {
-      text-align: center;
+    .wt-name-native {
+      font-weight: normal;
+      font-size: .82rem;
       color: var(--text-muted);
-      padding: 12px 0;
     }
+    .wt-controls { display: flex; gap: 3px; }
+    .wt-ctrl-btn {
+      width: 24px; height: 24px;
+      border: none; border-radius: 4px;
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: .82rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background .15s, color .15s;
+      font-family: inherit;
+    }
+    .wt-ctrl-btn:hover { background: var(--accent); color: #fff; }
+    .wt-ctrl-btn.wt-rm:hover { background: #c62828; }
+
+    /* tile body: icon + temp/desc + local time */
+    .wt-body { display: flex; align-items: center; gap: 10px; }
+    .wt-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .wt-mid { flex: 1; min-width: 0; }
+    .wt-temp { font-size: 1.5rem; font-weight: 700; }
+    .wt-desc { font-size: .88rem; color: var(--text-muted); }
+    .wt-time-block { text-align: right; flex-shrink: 0; }
+    .wt-time { display: block; font-size: 1.1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .wt-date { display: block; font-size: .75rem; color: var(--text-muted); white-space: nowrap; }
+
+    /* tile footer: humidity / wind / feels-like */
+    .wt-extras {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      font-size: .8rem; color: var(--text-muted);
+      margin-top: 7px; padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    .wt-loading {
+      text-align: center; color: var(--text-muted);
+      padding: 10px 0; font-size: .9rem;
+    }
+
+    /* Forecast row: yesterday + 3 days */
+    .wt-forecast {
+      display: flex; gap: 4px;
+      margin-top: 7px; padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    .wt-fcast-col {
+      flex: 1; text-align: center;
+      padding: 4px 2px; border-radius: 6px;
+    }
+    .wt-fcast-yday {
+      background: var(--border);
+      opacity: .75;
+    }
+    .wt-fcast-lbl { font-size: .72rem; color: var(--text-muted); margin-bottom: 2px; }
+    .wt-fcast-ico { font-size: 1.1rem; line-height: 1.3; }
+    .wt-fcast-tmp { font-size: .72rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; }
+
+    /* Add-city row */
+    #weather-add-row {
+      display: flex; flex-wrap: nowrap; gap: 6px;
+      margin-top: 10px; align-items: center;
+    }
+    .wt-input-wrap { position: relative; flex: 1 1 0; min-width: 0; }
+    #weather-city-input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: .9rem; background: var(--search-bg);
+      color: var(--text); font-family: inherit; outline: none;
+    }
+    #weather-city-input:focus { border-color: var(--accent); }
+    #weather-city-btn {
+      flex-shrink: 0; padding: 6px 10px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 6px;
+      font-size: .88rem; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+    }
+    #weather-add-err {
+      font-size: .82rem; color: var(--accent);
+      margin-top: 4px; display: none;
+    }
+    /* City suggestion dropdown */
+    .wt-city-suggestions {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.14);
+      overflow: hidden;
+      z-index: 300;
+    }
+    html[data-theme="dark"] .wt-city-suggestions { box-shadow: 0 4px 16px rgba(0,0,0,.45); }
+    .wt-city-suggestions.open { display: block; }
+    .wt-sug-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+    .wt-sug-item:last-child { border-bottom: none; }
+    .wt-sug-item:hover, .wt-sug-item.focused { background: var(--hover); }
+    .wt-sug-item.focused .wt-sug-name { color: var(--accent); }
+    .wt-sug-name { font-size: .95rem; font-weight: 600; }
+    .wt-sug-native { color: var(--text-muted); font-weight: normal; font-size: .82rem; margin-left: 4px; }
+    .wt-sug-sub { font-size: .78rem; color: var(--text-muted); margin-top: 1px; }
 
     /* ── 设为首页 button ──────────────────────────────── */
     .sethome-btn {
@@ -1060,29 +1098,18 @@
       <!-- Right: sidebar -->
       <div class="sidebar">
 
-        <!-- Weather detail card -->
+        <!-- Weather multi-location card -->
         <div class="side-card" id="weather-card">
           <div class="side-title"><span class="icon">🌤</span>实时天气</div>
-          <div id="weather-loading">正在获取天气…</div>
-          <div class="weather-detail" id="weather-detail" style="display:none">
-            <div class="weather-main">
-              <div class="weather-big-icon" id="wd-icon"></div>
-              <div class="weather-info-right">
-                <div class="weather-big-temp" id="wd-temp"></div>
-                <div class="weather-city-name" id="wd-city"></div>
-                <div class="weather-desc-text" id="wd-desc"></div>
-              </div>
+          <div id="weather-tiles"></div>
+          <div id="weather-add-row">
+            <div class="wt-input-wrap">
+              <input id="weather-city-input" type="text" placeholder="添加城市…" autocomplete="off">
+              <div class="wt-city-suggestions" id="wt-city-sug"></div>
             </div>
-            <div class="weather-extras">
-              <div class="weather-extra-item">💧 <span id="wd-humidity"></span></div>
-              <div class="weather-extra-item">🌬 <span id="wd-wind"></span></div>
-              <div class="weather-extra-item">🌡 <span id="wd-feels"></span></div>
-            </div>
+            <button id="weather-city-btn" onclick="addCityByName()">添加</button>
           </div>
-          <div id="weather-city-input-row">
-            <input id="weather-city-input" type="text" placeholder="输入城市名称">
-            <button id="weather-city-btn" onclick="lookupCity()">查询</button>
-          </div>
+          <div id="weather-add-err"></div>
         </div>
 
         <!-- Weibo hot search -->
@@ -1413,109 +1440,459 @@
       99: ['强雷雨', '⛈️'],
     };
 
-    function wmoInfo(code) {
-      return WMO[code] || ['未知', '🌡️'];
+    function wmoInfo(code) { return WMO[code] || ['未知', '🌡️']; }
+
+    /* ── Location time helpers ── */
+    function locTimeDate(timezone) {
+      const now = new Date();
+      const timeFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false });
+      const dateFmt = new Intl.DateTimeFormat('zh-CN', { timeZone: timezone, month: 'numeric', day: 'numeric', weekday: 'short' });
+      return { time: timeFmt.format(now), date: dateFmt.format(now) };
     }
 
-    function showWeather(data, cityName) {
-      const cur = data.current;
-      const [desc, icon] = wmoInfo(cur.weather_code);
-      const temp = Math.round(cur.temperature_2m);
-      const feels = Math.round(cur.apparent_temperature);
-      const humid = cur.relative_humidity_2m;
-      const wind = Math.round(cur.wind_speed_10m);
+    /* ── Location storage ── */
+    // [{id, lat, lon, nameZh, nameNative, timezone, isAuto, weather:{temp,feelsLike,humidity,wind,code}}]
+    let locations = [];
 
-      // Sidebar detail
-      document.getElementById('wd-icon').textContent = icon;
-      document.getElementById('wd-temp').textContent = `${temp}°C`;
-      document.getElementById('wd-city').textContent = cityName || '当前位置';
-      document.getElementById('wd-desc').textContent = desc;
-      document.getElementById('wd-humidity').textContent = `湿度 ${humid}%`;
-      document.getElementById('wd-wind').textContent = `风速 ${wind} km/h`;
-      document.getElementById('wd-feels').textContent = `体感 ${feels}°C`;
-
-      document.getElementById('weather-loading').style.display = 'none';
-      document.getElementById('weather-detail').style.display = '';
+    function loadLocations() {
+      try { return JSON.parse(store.get('haohome-locs') || '[]'); } catch(e) { return []; }
+    }
+    function saveLocations() {
+      store.set('haohome-locs', JSON.stringify(locations.map(({ weather, ...rest }) => rest)));
     }
 
-    async function fetchWeatherByCoords(lat, lon, cityName) {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-        `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m` +
-        `&timezone=auto`;
-      const res = await fetch(url);
-      const data = await res.json();
-      showWeather(data, cityName);
-      store.set('haohome-weather', JSON.stringify({ lat, lon, cityName }));
+    /* ── Render all tiles ── */
+    function renderTiles() {
+      const wrap = document.getElementById('weather-tiles');
+      wrap.innerHTML = '';
+      if (!locations.length) {
+        const p = document.createElement('div');
+        p.className = 'wt-loading';
+        p.textContent = '正在获取位置…';
+        wrap.appendChild(p);
+        return;
+      }
+      locations.forEach((loc, idx) => wrap.appendChild(buildTile(loc, idx)));
     }
 
-    async function lookupCity() {
-      const city = document.getElementById('weather-city-input').value.trim();
-      if (!city) return;
-      document.getElementById('weather-loading').textContent = '查询中…';
-      document.getElementById('weather-loading').style.display = '';
-      document.getElementById('weather-detail').style.display = 'none';
+    function buildTile(loc, idx) {
+      const tile = document.createElement('div');
+      tile.className = 'weather-tile';
+      tile.dataset.id = loc.id;
+
+      /* — header — */
+      const hdr = document.createElement('div');
+      hdr.className = 'wt-header';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'wt-name';
+      nameSpan.textContent = loc.nameZh || loc.nameNative || '当前位置';
+      if (loc.nameNative && loc.nameNative !== loc.nameZh) {
+        const nat = document.createElement('span');
+        nat.className = 'wt-name-native';
+        nat.textContent = ` (${loc.nameNative})`;
+        nameSpan.appendChild(nat);
+      }
+
+      const ctrl = document.createElement('div');
+      ctrl.className = 'wt-controls';
+
+      if (idx > 0) {
+        const up = document.createElement('button');
+        up.className = 'wt-ctrl-btn'; up.textContent = '↑'; up.title = '上移';
+        up.onclick = () => moveLocation(loc.id, -1);
+        ctrl.appendChild(up);
+      }
+      if (idx < locations.length - 1) {
+        const dn = document.createElement('button');
+        dn.className = 'wt-ctrl-btn'; dn.textContent = '↓'; dn.title = '下移';
+        dn.onclick = () => moveLocation(loc.id, 1);
+        ctrl.appendChild(dn);
+      }
+      if (locations.length > 1) {
+        const rm = document.createElement('button');
+        rm.className = 'wt-ctrl-btn wt-rm'; rm.textContent = '✕'; rm.title = '删除';
+        rm.onclick = () => removeLocation(loc.id);
+        ctrl.appendChild(rm);
+      }
+
+      hdr.appendChild(nameSpan);
+      hdr.appendChild(ctrl);
+      tile.appendChild(hdr);
+
+      /* — body — */
+      const body = document.createElement('div');
+      body.className = 'wt-body';
+      body.id = `wt-body-${loc.id}`;
+      renderTileBody(body, loc);
+      tile.appendChild(body);
+
+      /* — extras — */
+      const ext = document.createElement('div');
+      ext.className = 'wt-extras';
+      ext.id = `wt-ext-${loc.id}`;
+      renderTileExtras(ext, loc);
+      tile.appendChild(ext);
+
+      /* — forecast: yesterday + 3 days — */
+      const fcast = document.createElement('div');
+      fcast.className = 'wt-forecast';
+      fcast.id = `wt-fcast-${loc.id}`;
+      renderTileForecast(fcast, loc);
+      tile.appendChild(fcast);
+
+      return tile;
+    }
+
+    function renderTileBody(body, loc) {
+      body.innerHTML = '';
+      if (!loc.weather) {
+        const ld = document.createElement('div');
+        ld.className = 'wt-loading'; ld.textContent = '加载中…';
+        body.appendChild(ld);
+        return;
+      }
+      const [desc, icon] = wmoInfo(loc.weather.code);
+      const { time, date } = locTimeDate(loc.timezone || 'Asia/Shanghai');
+
+      const iconEl = document.createElement('span'); iconEl.className = 'wt-icon'; iconEl.textContent = icon;
+      const mid    = document.createElement('div');  mid.className = 'wt-mid';
+      const tempEl = document.createElement('div');  tempEl.className = 'wt-temp'; tempEl.textContent = `${loc.weather.temp}°C`;
+      const descEl = document.createElement('div');  descEl.className = 'wt-desc'; descEl.textContent = desc;
+      mid.appendChild(tempEl); mid.appendChild(descEl);
+
+      const tb   = document.createElement('div'); tb.className = 'wt-time-block';
+      const timeEl = document.createElement('span'); timeEl.className = 'wt-time'; timeEl.textContent = time;
+      const dateEl = document.createElement('span'); dateEl.className = 'wt-date'; dateEl.textContent = date;
+      tb.appendChild(timeEl); tb.appendChild(dateEl);
+
+      body.appendChild(iconEl); body.appendChild(mid); body.appendChild(tb);
+    }
+
+    function renderTileExtras(ext, loc) {
+      ext.innerHTML = '';
+      if (!loc.weather) return;
+      const items = [`💧 ${loc.weather.humidity}%`, `🌬 ${loc.weather.wind} km/h`, `🌡 体感 ${loc.weather.feelsLike}°C`];
+      items.forEach(t => { const s = document.createElement('span'); s.textContent = t; ext.appendChild(s); });
+    }
+
+    const DAY_LABELS = ['日','一','二','三','四','五','六'];
+    function renderTileForecast(el, loc) {
+      el.innerHTML = '';
+      const d = loc.weather?.daily;
+      if (!d?.time?.length) return;
+
+      // d has past_days=1 so index 0 = yesterday, 1 = today, 2-4 = next 3 days
+      // We show: yesterday (0) + next 3 days (2,3,4)
+      const show = [0, 2, 3, 4];
+      show.forEach(i => {
+        if (!d.time[i]) return;
+        const date  = new Date(d.time[i] + 'T12:00:00');
+        const isYday = i === 0;
+        const label  = isYday ? '昨天' : `周${DAY_LABELS[date.getDay()]}`;
+        const [, icon] = wmoInfo(d.weather_code[i]);
+        const hi = Math.round(d.temperature_2m_max[i]);
+        const lo = Math.round(d.temperature_2m_min[i]);
+
+        const col = document.createElement('div');
+        col.className = 'wt-fcast-col' + (isYday ? ' wt-fcast-yday' : '');
+
+        const lbl = document.createElement('div'); lbl.className = 'wt-fcast-lbl'; lbl.textContent = label;
+        const ic  = document.createElement('div'); ic.className  = 'wt-fcast-ico'; ic.textContent = icon;
+        const tmp = document.createElement('div'); tmp.className = 'wt-fcast-tmp';
+        tmp.textContent = `${lo}°–${hi}°`;
+
+        col.appendChild(lbl); col.appendChild(ic); col.appendChild(tmp);
+        el.appendChild(col);
+      });
+    }
+
+    /* Update just the time/date in all tiles every 30 s */
+    function refreshTileTimes() {
+      locations.forEach(loc => {
+        const body = document.getElementById(`wt-body-${loc.id}`);
+        if (!body || !loc.weather) return;
+        const { time, date } = locTimeDate(loc.timezone || 'Asia/Shanghai');
+        const timeEl = body.querySelector('.wt-time');
+        const dateEl = body.querySelector('.wt-date');
+        if (timeEl) timeEl.textContent = time;
+        if (dateEl) dateEl.textContent = date;
+      });
+    }
+    setInterval(refreshTileTimes, 30000);
+
+    /* ── Fetch weather for one location (current + yesterday + 3-day forecast) ── */
+    async function fetchWeatherForLoc(id) {
+      const loc = locations.find(l => l.id === id);
+      if (!loc) return;
       try {
-        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data.results?.length) throw new Error('未找到城市');
-        const r = data.results[0];
-        await fetchWeatherByCoords(r.latitude, r.longitude, r.name);
-        document.getElementById('weather-city-input').value = '';
-      } catch (e) {
-        document.getElementById('weather-loading').textContent = '未找到该城市，请重试';
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}` +
+          `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m` +
+          `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+          `&past_days=1&forecast_days=4&timezone=auto`;
+        const data = await (await fetch(url)).json();
+        const cur = data.current;
+        loc.weather = {
+          temp:      Math.round(cur.temperature_2m),
+          feelsLike: Math.round(cur.apparent_temperature),
+          humidity:  cur.relative_humidity_2m,
+          wind:      Math.round(cur.wind_speed_10m),
+          code:      cur.weather_code,
+          daily:     data.daily, // {time[], weather_code[], temperature_2m_max[], temperature_2m_min[]}
+        };
+        const body   = document.getElementById(`wt-body-${id}`);
+        const ext    = document.getElementById(`wt-ext-${id}`);
+        const fcast  = document.getElementById(`wt-fcast-${id}`);
+        if (body)  renderTileBody(body, loc);
+        if (ext)   renderTileExtras(ext, loc);
+        if (fcast) renderTileForecast(fcast, loc);
+      } catch(e) {}
+    }
+
+    /* ── Add / remove / move ── */
+    function addLocation(loc) {
+      // Prevent duplicates by proximity (~10 km)
+      const exists = locations.some(l =>
+        Math.abs(l.lat - loc.lat) < 0.1 && Math.abs(l.lon - loc.lon) < 0.1
+      );
+      if (exists) return;
+      locations.push({ ...loc, weather: null });
+      saveLocations();
+      renderTiles();
+      fetchWeatherForLoc(loc.id);
+    }
+
+    function removeLocation(id) {
+      locations = locations.filter(l => l.id !== id);
+      saveLocations();
+      renderTiles();
+    }
+
+    function moveLocation(id, dir) {
+      const idx = locations.findIndex(l => l.id === id);
+      const to  = idx + dir;
+      if (to < 0 || to >= locations.length) return;
+      [locations[idx], locations[to]] = [locations[to], locations[idx]];
+      saveLocations();
+      renderTiles();
+    }
+
+    /* ── Geocoding helpers ── */
+    async function reverseGeocode(lat, lon) {
+      try {
+        const res = await fetch(`/api/geocode?lat=${lat}&lon=${lon}`);
+        if (res.ok) return await res.json();
+      } catch(e) {}
+      return { nameZh: '', nameNative: '' };
+    }
+
+    function hasChinese(s) { return /[一-鿿]/.test(s); }
+
+    /* ── City search suggestions ── */
+    let cityInputTimer   = null;
+    let cityFocusedIdx   = -1;
+    let citySugData      = []; // [{nameZh, nameNative, lat, lon, timezone, sub}]
+
+    const cityInput  = document.getElementById('weather-city-input');
+    const citySugBox = document.getElementById('wt-city-sug');
+
+    function hideCitySuggestions() {
+      citySugBox.classList.remove('open');
+      cityFocusedIdx = -1;
+    }
+
+    async function fetchCitySuggestions(q) {
+      if (!q) { hideCitySuggestions(); return; }
+      try {
+        const [zhRes, enRes] = await Promise.all([
+          fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=zh`),
+          fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en`),
+        ]);
+        const zhData = await zhRes.json();
+        const enData = await enRes.json();
+        if (!zhData.results?.length) { hideCitySuggestions(); return; }
+
+        citySugData = zhData.results.map((r, i) => {
+          const rEn        = enData.results?.[i];
+          const nameZh     = r.name;
+          const nameNative = rEn?.name || '';
+          const isCn       = hasChinese(nameZh);
+          return {
+            nameZh:     isCn ? nameZh : (nameNative || nameZh),
+            nameNative: isCn && nameNative !== nameZh ? nameNative : '',
+            lat:        r.latitude,
+            lon:        r.longitude,
+            timezone:   r.timezone || 'UTC',
+            sub:        [r.admin1, r.country].filter(Boolean).join('，'),
+          };
+        });
+
+        buildCitySuggestions();
+      } catch(e) { hideCitySuggestions(); }
+    }
+
+    function buildCitySuggestions() {
+      citySugBox.innerHTML = '';
+      if (!citySugData.length) { hideCitySuggestions(); return; }
+
+      citySugData.forEach((loc, i) => {
+        const div  = document.createElement('div');
+        div.className = 'wt-sug-item';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'wt-sug-name';
+        nameEl.textContent = loc.nameZh;
+        if (loc.nameNative) {
+          const nat = document.createElement('span');
+          nat.className = 'wt-sug-native';
+          nat.textContent = `(${loc.nameNative})`;
+          nameEl.appendChild(nat);
+        }
+        div.appendChild(nameEl);
+
+        if (loc.sub) {
+          const subEl = document.createElement('div');
+          subEl.className = 'wt-sug-sub';
+          subEl.textContent = loc.sub;
+          div.appendChild(subEl);
+        }
+
+        div.addEventListener('mousedown', e => { e.preventDefault(); selectCitySuggestion(i); });
+        citySugBox.appendChild(div);
+      });
+
+      citySugBox.classList.add('open');
+      cityFocusedIdx = -1;
+    }
+
+    function selectCitySuggestion(i) {
+      const loc = citySugData[i];
+      if (!loc) return;
+      hideCitySuggestions();
+      cityInput.value = '';
+      document.getElementById('weather-add-err').style.display = 'none';
+      addLocation({ id: Date.now().toString(), ...loc, isAuto: false });
+    }
+
+    cityInput.addEventListener('input', () => {
+      clearTimeout(cityInputTimer);
+      const val = cityInput.value.trim();
+      if (val) { cityInputTimer = setTimeout(() => fetchCitySuggestions(val), 250); }
+      else { hideCitySuggestions(); }
+    });
+
+    cityInput.addEventListener('keydown', e => {
+      const items = [...citySugBox.querySelectorAll('.wt-sug-item')];
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        cityFocusedIdx = Math.min(cityFocusedIdx + 1, items.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        cityFocusedIdx = Math.max(cityFocusedIdx - 1, -1);
+      } else if (e.key === 'Escape') {
+        hideCitySuggestions(); return;
+      } else if (e.key === 'Enter') {
+        if (cityFocusedIdx >= 0 && items[cityFocusedIdx]) {
+          e.preventDefault(); selectCitySuggestion(cityFocusedIdx);
+        } else { addCityByName(); }
+        return;
+      } else { return; }
+      items.forEach((el, i) => el.classList.toggle('focused', i === cityFocusedIdx));
+    });
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#weather-add-row')) hideCitySuggestions();
+    });
+
+    /* ── Add city (fallback when no suggestion selected) ── */
+    async function addCityByName() {
+      const errEl = document.getElementById('weather-add-err');
+      const city  = cityInput.value.trim();
+      if (!city) return;
+
+      // If suggestions are already loaded, use the first one
+      if (citySugData.length) { selectCitySuggestion(0); return; }
+
+      const btn = document.getElementById('weather-city-btn');
+      btn.disabled = true; btn.textContent = '查询中…';
+      errEl.style.display = 'none';
+      try {
+        await fetchCitySuggestions(city);
+        if (citySugData.length) { selectCitySuggestion(0); }
+        else { throw new Error('no results'); }
+      } catch(e) {
+        errEl.textContent = '未找到该城市，请重试';
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false; btn.textContent = '添加';
       }
     }
 
-    async function loadWeather() {
-      // Try saved city first
-      const saved = store.get('haohome-weather');
-      if (saved) {
-        try {
-          const { lat, lon, cityName } = JSON.parse(saved);
-          await fetchWeatherByCoords(lat, lon, cityName);
-          return;
-        } catch (_) { }
+    /* ── Auto-detect location on first load ── */
+    async function initWeather() {
+      locations = loadLocations();
+      if (locations.length) {
+        renderTiles();
+        locations.forEach(l => fetchWeatherForLoc(l.id));
+        return;
       }
+      renderTiles(); // shows loading state
 
-      // Try Cloudflare geolocation (works when deployed to Cloudflare Pages)
+      // Try Cloudflare geolocation
       try {
         const res = await fetch('/api/location');
         if (res.ok) {
           const loc = await res.json();
           if (loc.latitude && loc.longitude) {
-            await fetchWeatherByCoords(loc.latitude, loc.longitude, loc.city);
+            const names = await reverseGeocode(loc.latitude, loc.longitude);
+            addLocation({
+              id:         'auto',
+              lat:        loc.latitude,
+              lon:        loc.longitude,
+              nameZh:     names.nameZh || loc.city || '当前位置',
+              nameNative: names.nameNative || '',
+              timezone:   loc.timezone || 'Asia/Shanghai',
+              isAuto:     true,
+            });
             return;
           }
         }
-      } catch (_) { }
+      } catch(_) {}
 
-      // Fallback: browser geolocation
+      // Browser geolocation fallback
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async pos => {
             try {
-              await fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude, '');
-            } catch (_) {
-              document.getElementById('weather-loading').textContent =
-                '请在上方输入城市名查询天气';
-            }
+              const names = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
+              addLocation({
+                id:         'auto',
+                lat:        pos.coords.latitude,
+                lon:        pos.coords.longitude,
+                nameZh:     names.nameZh || '当前位置',
+                nameNative: names.nameNative || '',
+                timezone:   Intl.DateTimeFormat().resolvedOptions().timeZone,
+                isAuto:     true,
+              });
+            } catch(_) { showAddPrompt(); }
           },
-          () => {
-            document.getElementById('weather-loading').textContent =
-              '请在上方输入城市名查询天气';
-          },
+          () => showAddPrompt(),
           { timeout: 6000 }
         );
-      } else {
-        document.getElementById('weather-loading').textContent = '请在上方输入城市名查询天气';
-      }
+      } else { showAddPrompt(); }
     }
 
-    loadWeather();
+    function showAddPrompt() {
+      const wrap = document.getElementById('weather-tiles');
+      wrap.innerHTML = '';
+      const p = document.createElement('div');
+      p.className = 'wt-loading'; p.textContent = '请在下方输入城市名添加天气';
+      wrap.appendChild(p);
+    }
 
-    // Refresh weather every 15 min
-    setInterval(loadWeather, 15 * 60 * 1000);
+    initWeather();
+    // Refresh weather data every 15 min
+    setInterval(() => locations.forEach(l => fetchWeatherForLoc(l.id)), 15 * 60 * 1000);
 
 
     /* ────────────────────────────────────────────────────
@@ -1587,8 +1964,7 @@
     /* ────────────────────────────────────────────────────
        City input: press Enter to search
     ──────────────────────────────────────────────────── */
-    document.getElementById('weather-city-input')
-      .addEventListener('keydown', e => { if (e.key === 'Enter') lookupCity(); });
+    // City input Enter key is handled inside the cityInput keydown listener above
 
     /* ────────────────────────────────────────────────────
        Auto-replace emoji icons with real site favicons.
