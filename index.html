@@ -190,6 +190,17 @@
       box-shadow: var(--shadow);
       padding: 20px 24px;
       margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      transition: box-shadow .2s, border-radius .2s;
+    }
+    .search-section.stuck {
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: 0 3px 14px rgba(0,0,0,.18);
+    }
+    html[data-theme="dark"] .search-section.stuck {
+      box-shadow: 0 3px 14px rgba(0,0,0,.45);
     }
 
     .search-tabs {
@@ -2271,6 +2282,16 @@
         item.appendChild(meta);
         listEl.appendChild(item);
       });
+    })();
+
+    /* ────────────────────────────────────────────────────
+       Sticky search bar — add shadow + flush corners once stuck
+    ──────────────────────────────────────────────────── */
+    (function () {
+      const searchEl = document.querySelector('.search-section');
+      window.addEventListener('scroll', () => {
+        searchEl.classList.toggle('stuck', window.scrollY > 10);
+      }, { passive: true });
     })();
 
     /* ────────────────────────────────────────────────────
