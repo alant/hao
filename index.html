@@ -1856,6 +1856,7 @@
 
     /* ── Add city (fallback when no suggestion selected) ── */
     async function addCityByName() {
+      clearTimeout(cityInputTimer);
       const errEl = document.getElementById('weather-add-err');
       const city  = cityInput.value.trim();
       if (!city) return;
